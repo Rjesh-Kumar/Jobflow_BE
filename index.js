@@ -1,43 +1,54 @@
-const express = require("express");
-const cors = require("cors");
-const connectDB = require("./lib/mongodb");
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+require('dotenv').config();
 
 const jobsRouter = require("./routes/jobs");
 
 const app = express();
 
-// ✅ Only ONE CORS for Vercel
+// Middleware
+// CORS configuration for production
 app.use(cors({
-  origin: [
-    "http://localhost:3000",
-    "https://job-flow-fe.vercel.app"
-  ],
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  origin: ['http://localhost:3000', 'https://your-frontend.vercel.app'], // Add your frontend URL
   credentials: true
 }));
 
 app.use(express.json());
 
-// ✅ DB connect BEFORE routes
-app.use(async (req, res, next) => {
-  await connectDB();
-  next();
+// MongoDB connection
+mongoose.connect(process.env.MONGODB_URI)
+   .then(() => console.log('Connected to MongoDB'))
+   .catch(err => console.log('MongoDB connection error:', err));
+
+// Welcome route
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'Welcome to Jobs API',
+        status: 'online',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+            jobs: '/api/jobs'
+        }
+    });
 });
 
-// OPTIONS preflight fix for Vercel
-app.options("*", cors());
+// Routes
+app.use('/api/jobs', jobsRouter);   
 
-// Welcome
-app.get("/", (req,res)=>{
-  res.json({message:"API Running"});
+// Error handling middleware
+app.use((err, req, res, next) => {
+    console.log(err.stack);
+    res.status(500).json({ message: 'Something went wrong' });
 });
 
-app.use("/api/jobs", jobsRouter);
-
+// For Vercel, we export the app instead of listening
 module.exports = app;
 
-// LOCAL ONLY
-if (process.env.NODE_ENV !== "production") {
-  const PORT = 5000;
-  app.listen(PORT, ()=>console.log("Local running"));
+// Local development
+if (require.main === module) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
 }
