@@ -10,7 +10,10 @@ const app = express();
 // Middleware
 // CORS configuration for production
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://your-frontend.vercel.app'], // Add your frontend URL
+  origin: [
+    'http://localhost:3000', 
+    'https://job-flow-fe.vercel.app/'
+  ], 
   credentials: true
 }));
 
