@@ -9,10 +9,28 @@ const app = express();
 
 // Middleware
 // CORS configuration for production
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "https://job-flow-fe.vercel.app"
+];
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'https://job-flow-fe.vercel.app/'], // Add your frontend URL
+  origin: function(origin, callback){
+    if(!origin) return callback(null, true);
+
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = 'CORS policy does not allow this origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
   credentials: true
 }));
+
+// ⭐⭐ VERY IMPORTANT FOR VERCEL
+app.options("*", cors());
 
 app.use(express.json());
 
