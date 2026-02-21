@@ -11,7 +11,7 @@ const app = express();
 app.use(cors({
   origin: [
     'http://localhost:3000', 
-    'https://job-flow-fe.vercel.app'  // ✅ No trailing slash
+    'https://jobflow-fe.vercel.app/'  // ✅ No trailing slash
   ], 
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
