@@ -7,15 +7,19 @@ const jobsRouter = require("./routes/jobs");
 
 const app = express();
 
-// Middleware
-// CORS configuration for production
+// ✅ FIXED CORS - Remove trailing slash
 app.use(cors({
   origin: [
     'http://localhost:3000', 
-    'https://job-flow-fe.vercel.app/'
+    'https://job-flow-fe.vercel.app'  // ✅ No trailing slash
   ], 
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+// ✅ Handle preflight requests
+app.options('*', cors());
 
 app.use(express.json());
 
@@ -45,7 +49,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({ message: 'Something went wrong' });
 });
 
-// For Vercel, we export the app instead of listening
+// For Vercel, we export the app
 module.exports = app;
 
 // Local development
